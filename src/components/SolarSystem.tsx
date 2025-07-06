@@ -52,6 +52,56 @@ const SolarSystem = () => {
     return new THREE.CanvasTexture(canvas);
   };
 
+  const createSunTexture = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d')!;
+    
+    // Create radial gradient for base
+    const gradient = ctx.createRadialGradient(256, 128, 0, 256, 128, 200);
+    gradient.addColorStop(0, '#FFD700');
+    gradient.addColorStop(0.3, '#FFA500');
+    gradient.addColorStop(0.6, '#FF8C00');
+    gradient.addColorStop(1, '#FF4500');
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 512, 256);
+    
+    // Add solar flares and spots
+    ctx.globalCompositeOperation = 'overlay';
+    for (let i = 0; i < 30; i++) {
+      const x = Math.random() * 512;
+      const y = Math.random() * 256;
+      const size = 5 + Math.random() * 15;
+      
+      const flareGradient = ctx.createRadialGradient(x, y, 0, x, y, size);
+      flareGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+      flareGradient.addColorStop(0.5, 'rgba(255, 200, 0, 0.4)');
+      flareGradient.addColorStop(1, 'rgba(255, 100, 0, 0.1)');
+      
+      ctx.fillStyle = flareGradient;
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Add dark sunspots
+    ctx.globalCompositeOperation = 'multiply';
+    for (let i = 0; i < 8; i++) {
+      const x = Math.random() * 512;
+      const y = Math.random() * 256;
+      const size = 3 + Math.random() * 8;
+      
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    return canvas;
+  };
+
   const createPlanetMaterial = (planetName: string, color: string) => {
     switch (planetName) {
       case 'Mercury':
@@ -209,7 +259,7 @@ const SolarSystem = () => {
     cameraRef.current = camera;
     clockRef.current = new THREE.Clock();
 
-    // Improved camera position for better planet viewing
+    // Camera position
     camera.position.set(0, 40, 60);
     camera.lookAt(0, 0, 0);
 
@@ -242,50 +292,64 @@ const SolarSystem = () => {
       scene.add(starField);
     };
 
-    // Create enhanced Sun with proper material
-    const sunGeometry = new THREE.SphereGeometry(5, 32, 32);
+    // Create realistic Sun with multiple layers
+    const sunGeometry = new THREE.SphereGeometry(5, 64, 64);
+    
+    // Main sun body with texture
+    const sunTexture = new THREE.CanvasTexture(createSunTexture());
     const sunMaterial = new THREE.MeshPhongMaterial({ 
-      color: 0xFFD700,
-      emissive: 0xFFAA00,
-      emissiveIntensity: 0.3
+      map: sunTexture,
+      emissive: 0xFF6600,
+      emissiveIntensity: 0.4,
+      shininess: 100
     });
-    
-    // Add sun corona effect
-    const coronaGeometry = new THREE.SphereGeometry(6, 32, 32);
-    const coronaMaterial = new THREE.MeshPhongMaterial({
-      color: 0xFFA500,
-      transparent: true,
-      opacity: 0.3,
-      emissive: 0xFF8C00,
-      emissiveIntensity: 0.2
-    });
-    const corona = new THREE.Mesh(coronaGeometry, coronaMaterial);
-    scene.add(corona);
-    
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     scene.add(sun);
+    
+    // Inner corona
+    const innerCoronaGeometry = new THREE.SphereGeometry(6.2, 32, 32);
+    const innerCoronaMaterial = new THREE.MeshPhongMaterial({
+      color: 0xFFAA00,
+      transparent: true,
+      opacity: 0.4,
+      emissive: 0xFF8800,
+      emissiveIntensity: 0.3
+    });
+    const innerCorona = new THREE.Mesh(innerCoronaGeometry, innerCoronaMaterial);
+    scene.add(innerCorona);
+    
+    // Outer corona
+    const outerCoronaGeometry = new THREE.SphereGeometry(7.5, 32, 32);
+    const outerCoronaMaterial = new THREE.MeshPhongMaterial({
+      color: 0xFF9900,
+      transparent: true,
+      opacity: 0.2,
+      emissive: 0xFF6600,
+      emissiveIntensity: 0.2
+    });
+    const outerCorona = new THREE.Mesh(outerCoronaGeometry, outerCoronaMaterial);
+    scene.add(outerCorona);
 
     // Add Sun label
     const sunLabelTexture = createTextTexture('Sun');
     const sunLabelMaterial = new THREE.SpriteMaterial({ map: sunLabelTexture });
     const sunLabel = new THREE.Sprite(sunLabelMaterial);
-    sunLabel.position.set(0, 8, 0);
+    sunLabel.position.set(0, 10, 0);
     sunLabel.scale.set(8, 2, 1);
     scene.add(sunLabel);
 
-    // Improved lighting for better planet visibility
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+    // Enhanced lighting from the sun
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xFFD700, 2, 400);
+    const pointLight = new THREE.PointLight(0xFFDD88, 3, 500);
     pointLight.position.set(0, 0, 0);
     pointLight.castShadow = true;
     pointLight.shadow.mapSize.width = 2048;
     pointLight.shadow.mapSize.height = 2048;
     scene.add(pointLight);
 
-    // Add directional light for better illumination
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const directionalLight = new THREE.DirectionalLight(0xFFEEDD, 1.2);
     directionalLight.position.set(10, 10, 5);
     scene.add(directionalLight);
 
@@ -343,7 +407,7 @@ const SolarSystem = () => {
 
     console.log('Solar system initialization complete. Total objects in scene:', scene.children.length);
 
-    // Enhanced animation loop
+    // Enhanced animation loop with realistic sun effects
     const animate = () => {
       animationIdRef.current = requestAnimationFrame(animate);
 
@@ -353,12 +417,26 @@ const SolarSystem = () => {
       }
 
       const delta = clockRef.current?.getDelta() || 0;
+      const time = Date.now() * 0.001;
       
-      // Enhanced sun rotation with pulsing effect
-      sun.rotation.y += delta * 0.3;
-      const pulseScale = 1 + Math.sin(Date.now() * 0.001) * 0.05;
-      corona.scale.setScalar(pulseScale);
-      corona.rotation.y -= delta * 0.2;
+      // Realistic sun animations
+      sun.rotation.y += delta * 0.2;
+      sun.rotation.x += delta * 0.1;
+      
+      // Animate corona layers with different speeds and pulsing
+      const innerPulse = 1 + Math.sin(time * 2) * 0.08;
+      const outerPulse = 1 + Math.sin(time * 1.5) * 0.12;
+      
+      innerCorona.scale.setScalar(innerPulse);
+      innerCorona.rotation.y -= delta * 0.3;
+      innerCorona.rotation.z += delta * 0.1;
+      
+      outerCorona.scale.setScalar(outerPulse);
+      outerCorona.rotation.y += delta * 0.15;
+      outerCorona.rotation.x -= delta * 0.08;
+      
+      // Animate light intensity for realistic solar flare effect
+      pointLight.intensity = 2.8 + Math.sin(time * 3) * 0.4;
       
       // Update planets with enhanced features
       planetMeshes.forEach(planet => {
