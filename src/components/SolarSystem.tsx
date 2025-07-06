@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Play, Pause, RotateCcw } from 'lucide-react';
@@ -11,6 +10,7 @@ interface Planet {
   color: string;
   mesh?: THREE.Mesh;
   angle: number;
+  description: string;
 }
 
 const SolarSystem = () => {
@@ -23,15 +23,157 @@ const SolarSystem = () => {
   
   const [isPlaying, setIsPlaying] = useState(true);
   const [planets, setPlanets] = useState<Planet[]>([
-    { name: 'Mercury', radius: 0.8, distance: 15, speed: 4.74, color: '#8C7853', angle: 0 },
-    { name: 'Venus', radius: 1.2, distance: 20, speed: 3.50, color: '#FFC649', angle: 0 },
-    { name: 'Earth', radius: 1.3, distance: 25, speed: 2.98, color: '#6B93D6', angle: 0 },
-    { name: 'Mars', radius: 1.0, distance: 30, speed: 2.41, color: '#CD5C5C', angle: 0 },
-    { name: 'Jupiter', radius: 3.5, distance: 40, speed: 1.31, color: '#D8CA9D', angle: 0 },
-    { name: 'Saturn', radius: 3.0, distance: 50, speed: 0.97, color: '#FAD5A5', angle: 0 },
-    { name: 'Uranus', radius: 2.2, distance: 60, speed: 0.68, color: '#4FD0E3', angle: 0 },
-    { name: 'Neptune', radius: 2.1, distance: 70, speed: 0.54, color: '#4B70DD', angle: 0 }
+    { name: 'Mercury', radius: 0.8, distance: 15, speed: 4.74, color: '#8C7853', angle: 0, description: 'Smallest, closest to Sun' },
+    { name: 'Venus', radius: 1.2, distance: 20, speed: 3.50, color: '#FFC649', angle: 0, description: 'Hottest planet, thick atmosphere' },
+    { name: 'Earth', radius: 1.3, distance: 25, speed: 2.98, color: '#6B93D6', angle: 0, description: 'Our blue home planet' },
+    { name: 'Mars', radius: 1.0, distance: 30, speed: 2.41, color: '#CD5C5C', angle: 0, description: 'The red planet' },
+    { name: 'Jupiter', radius: 3.5, distance: 40, speed: 1.31, color: '#D8CA9D', angle: 0, description: 'Largest planet, gas giant' },
+    { name: 'Saturn', radius: 3.0, distance: 50, speed: 0.97, color: '#FAD5A5', angle: 0, description: 'Ringed planet' },
+    { name: 'Uranus', radius: 2.2, distance: 60, speed: 0.68, color: '#4FD0E3', angle: 0, description: 'Ice giant, tilted rotation' },
+    { name: 'Neptune', radius: 2.1, distance: 70, speed: 0.54, color: '#4B70DD', angle: 0, description: 'Windiest planet, deep blue' }
   ]);
+
+  const createPlanetMaterial = (planetName: string, color: string) => {
+    switch (planetName) {
+      case 'Mercury':
+        return new THREE.MeshPhongMaterial({ 
+          color: color,
+          shininess: 10,
+          bumpScale: 0.3
+        });
+      
+      case 'Venus':
+        return new THREE.MeshPhongMaterial({ 
+          color: color,
+          shininess: 100,
+          emissive: new THREE.Color(color).multiplyScalar(0.1)
+        });
+      
+      case 'Earth':
+        const earthMaterial = new THREE.MeshPhongMaterial({ 
+          color: color,
+          shininess: 50,
+          specular: 0x111111
+        });
+        // Add some green and brown patches to simulate continents
+        const earthTexture = new THREE.CanvasTexture(createEarthTexture());
+        earthMaterial.map = earthTexture;
+        return earthMaterial;
+      
+      case 'Mars':
+        return new THREE.MeshPhongMaterial({ 
+          color: color,
+          shininess: 5,
+          roughness: 0.8
+        });
+      
+      case 'Jupiter':
+        const jupiterTexture = new THREE.CanvasTexture(createJupiterTexture());
+        return new THREE.MeshPhongMaterial({ 
+          map: jupiterTexture,
+          shininess: 30
+        });
+      
+      case 'Saturn':
+        return new THREE.MeshPhongMaterial({ 
+          color: color,
+          shininess: 40
+        });
+      
+      case 'Uranus':
+        return new THREE.MeshPhongMaterial({ 
+          color: color,
+          shininess: 60,
+          transparent: true,
+          opacity: 0.9
+        });
+      
+      case 'Neptune':
+        return new THREE.MeshPhongMaterial({ 
+          color: color,
+          shininess: 80,
+          emissive: new THREE.Color(color).multiplyScalar(0.05)
+        });
+      
+      default:
+        return new THREE.MeshPhongMaterial({ color: color });
+    }
+  };
+
+  const createEarthTexture = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d')!;
+    
+    // Create a blue base
+    ctx.fillStyle = '#6B93D6';
+    ctx.fillRect(0, 0, 512, 256);
+    
+    // Add green continents
+    ctx.fillStyle = '#228B22';
+    // Simulate continents with random shapes
+    for (let i = 0; i < 20; i++) {
+      ctx.beginPath();
+      const x = Math.random() * 512;
+      const y = Math.random() * 256;
+      const size = 20 + Math.random() * 40;
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Add white clouds
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    for (let i = 0; i < 30; i++) {
+      ctx.beginPath();
+      const x = Math.random() * 512;
+      const y = Math.random() * 256;
+      const size = 10 + Math.random() * 20;
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    return canvas;
+  };
+
+  const createJupiterTexture = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d')!;
+    
+    // Create horizontal bands
+    const colors = ['#D8CA9D', '#C4A484', '#E6D7B8', '#B8946D', '#F0E1C4'];
+    
+    for (let y = 0; y < 256; y += 20) {
+      const colorIndex = Math.floor(y / 20) % colors.length;
+      ctx.fillStyle = colors[colorIndex];
+      ctx.fillRect(0, y, 512, 20);
+    }
+    
+    // Add the Great Red Spot
+    ctx.fillStyle = '#CD5C5C';
+    ctx.beginPath();
+    ctx.ellipse(300, 140, 40, 25, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    return canvas;
+  };
+
+  const createSaturnRings = (scene: THREE.Scene, saturn: THREE.Mesh) => {
+    const ringGeometry = new THREE.RingGeometry(4.5, 7, 64);
+    const ringMaterial = new THREE.MeshPhongMaterial({
+      color: 0xC4A484,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.7
+    });
+    const rings = new THREE.Mesh(ringGeometry, ringMaterial);
+    rings.rotation.x = Math.PI / 2;
+    rings.position.copy(saturn.position);
+    scene.add(rings);
+    return rings;
+  };
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -56,61 +198,85 @@ const SolarSystem = () => {
     camera.position.set(0, 50, 80);
     camera.lookAt(0, 0, 0);
 
-    // Create starfield background
+    // Create enhanced starfield background
     const createStarfield = () => {
       const starsGeometry = new THREE.BufferGeometry();
-      const starsMaterial = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 0.5 });
+      const starsMaterial = new THREE.PointsMaterial({ 
+        color: 0xFFFFFF, 
+        size: 1,
+        sizeAttenuation: false
+      });
       
       const starsVertices = [];
-      for (let i = 0; i < 10000; i++) {
+      const starsColors = [];
+      for (let i = 0; i < 15000; i++) {
         const x = (Math.random() - 0.5) * 2000;
         const y = (Math.random() - 0.5) * 2000;
         const z = (Math.random() - 0.5) * 2000;
         starsVertices.push(x, y, z);
+        
+        // Add some color variation to stars
+        const brightness = 0.5 + Math.random() * 0.5;
+        starsColors.push(brightness, brightness, brightness);
       }
       
       starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+      starsGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starsColors, 3));
+      
+      starsMaterial.vertexColors = true;
       const starField = new THREE.Points(starsGeometry, starsMaterial);
       scene.add(starField);
     };
 
-    // Create Sun
+    // Create enhanced Sun
     const sunGeometry = new THREE.SphereGeometry(5, 32, 32);
     const sunMaterial = new THREE.MeshBasicMaterial({ 
       color: 0xFFD700,
       emissive: 0xFFD700,
+      emissiveIntensity: 0.6
+    });
+    
+    // Add sun corona effect
+    const coronaGeometry = new THREE.SphereGeometry(6, 32, 32);
+    const coronaMaterial = new THREE.MeshBasicMaterial({
+      color: 0xFFA500,
+      transparent: true,
+      opacity: 0.2,
+      emissive: 0xFFA500,
       emissiveIntensity: 0.3
     });
+    const corona = new THREE.Mesh(coronaGeometry, coronaMaterial);
+    scene.add(corona);
+    
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     scene.add(sun);
 
-    // Add lighting
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+    // Enhanced lighting
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xFFD700, 2, 200);
+    const pointLight = new THREE.PointLight(0xFFD700, 3, 300);
     pointLight.position.set(0, 0, 0);
     pointLight.castShadow = true;
+    pointLight.shadow.mapSize.width = 2048;
+    pointLight.shadow.mapSize.height = 2048;
     scene.add(pointLight);
 
-    // Create planets
+    // Create planets with enhanced materials
     const planetMeshes: Planet[] = planets.map(planet => {
       const geometry = new THREE.SphereGeometry(planet.radius, 32, 32);
-      const material = new THREE.MeshPhongMaterial({ 
-        color: planet.color,
-        shininess: 30
-      });
+      const material = createPlanetMaterial(planet.name, planet.color);
       const mesh = new THREE.Mesh(geometry, material);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       
-      // Create orbit line
-      const orbitGeometry = new THREE.RingGeometry(planet.distance - 0.1, planet.distance + 0.1, 64);
+      // Create enhanced orbit lines
+      const orbitGeometry = new THREE.RingGeometry(planet.distance - 0.1, planet.distance + 0.1, 128);
       const orbitMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0x555555, 
+        color: 0x444444, 
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.2
+        opacity: 0.15
       });
       const orbitLine = new THREE.Mesh(orbitGeometry, orbitMaterial);
       orbitLine.rotation.x = Math.PI / 2;
@@ -120,10 +286,17 @@ const SolarSystem = () => {
       return { ...planet, mesh };
     });
 
+    // Add Saturn's rings
+    const saturn = planetMeshes.find(p => p.name === 'Saturn');
+    let saturnRings: THREE.Mesh | null = null;
+    if (saturn && saturn.mesh) {
+      saturnRings = createSaturnRings(scene, saturn.mesh);
+    }
+
     setPlanets(planetMeshes);
     createStarfield();
 
-    // Animation loop
+    // Enhanced animation loop
     const animate = () => {
       if (!isPlaying) {
         animationIdRef.current = requestAnimationFrame(animate);
@@ -132,16 +305,33 @@ const SolarSystem = () => {
 
       const delta = clockRef.current?.getDelta() || 0;
       
-      // Rotate sun
-      sun.rotation.y += delta * 0.5;
+      // Enhanced sun rotation with pulsing effect
+      sun.rotation.y += delta * 0.3;
+      const pulseScale = 1 + Math.sin(Date.now() * 0.001) * 0.05;
+      corona.scale.setScalar(pulseScale);
+      corona.rotation.y -= delta * 0.2;
       
-      // Update planets
+      // Update planets with enhanced features
       planetMeshes.forEach(planet => {
         if (planet.mesh) {
           planet.angle += planet.speed * delta * 0.1;
           planet.mesh.position.x = Math.cos(planet.angle) * planet.distance;
           planet.mesh.position.z = Math.sin(planet.angle) * planet.distance;
-          planet.mesh.rotation.y += delta * 2;
+          
+          // Individual planet rotations
+          if (planet.name === 'Earth') {
+            planet.mesh.rotation.y += delta * 3; // Faster rotation for Earth
+          } else if (planet.name === 'Jupiter') {
+            planet.mesh.rotation.y += delta * 2.5; // Fast rotation for Jupiter
+          } else {
+            planet.mesh.rotation.y += delta * 1.5;
+          }
+          
+          // Update Saturn's rings position
+          if (planet.name === 'Saturn' && saturnRings) {
+            saturnRings.position.copy(planet.mesh.position);
+            saturnRings.rotation.z += delta * 0.5;
+          }
         }
       });
 
@@ -151,7 +341,6 @@ const SolarSystem = () => {
 
     animate();
 
-    // Handle window resize
     const handleResize = () => {
       if (camera && renderer) {
         camera.aspect = window.innerWidth / window.innerHeight;
@@ -162,7 +351,6 @@ const SolarSystem = () => {
 
     window.addEventListener('resize', handleResize);
 
-    // Mouse controls
     let isMouseDown = false;
     let mouseX = 0;
     let mouseY = 0;
@@ -216,7 +404,6 @@ const SolarSystem = () => {
   }, []);
 
   useEffect(() => {
-    // Update planet speeds when planets state changes
     planets.forEach(planet => {
       if (planet.mesh) {
         // Speed is already updated in the planets state
@@ -242,8 +429,8 @@ const SolarSystem = () => {
     <div className="relative w-full h-screen bg-black overflow-hidden">
       <div ref={mountRef} className="w-full h-full" />
       
-      {/* Control Panel */}
-      <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-sm rounded-lg p-4 max-w-sm max-h-[80vh] overflow-y-auto">
+      {/* Enhanced Control Panel */}
+      <div className="absolute top-4 left-4 bg-black/85 backdrop-blur-sm rounded-lg p-4 max-w-sm max-h-[80vh] overflow-y-auto border border-gray-700">
         <h2 className="text-white text-xl font-bold mb-4 text-center">Solar System Controls</h2>
         
         {/* Animation Controls */}
@@ -264,14 +451,15 @@ const SolarSystem = () => {
           </button>
         </div>
 
-        {/* Planet Speed Controls */}
+        {/* Enhanced Planet Speed Controls */}
         <div className="space-y-4">
           {planets.map((planet) => (
-            <div key={planet.name} className="bg-gray-800/50 p-3 rounded-lg">
-              <div className="flex justify-between items-center mb-2">
+            <div key={planet.name} className="bg-gray-800/60 p-3 rounded-lg border border-gray-600">
+              <div className="flex justify-between items-center mb-1">
                 <span className="text-white font-medium">{planet.name}</span>
                 <span className="text-gray-300 text-sm">{planet.speed.toFixed(2)}</span>
               </div>
+              <p className="text-gray-400 text-xs mb-2">{planet.description}</p>
               <input
                 type="range"
                 min="0"
@@ -291,15 +479,15 @@ const SolarSystem = () => {
         {/* Instructions */}
         <div className="mt-6 text-gray-400 text-sm">
           <p>• Drag to rotate view</p>
-          <p>• Scroll to zoom</p>
-          <p>• Adjust sliders to control planet speeds</p>
+          <p>• Scroll to zoom in/out</p>
+          <p>• Adjust sliders to control speeds</p>
         </div>
       </div>
 
-      {/* Title */}
+      {/* Enhanced Title */}
       <div className="absolute top-4 right-4 text-right">
-        <h1 className="text-white text-3xl font-bold mb-2">Solar System Simulation</h1>
-        <p className="text-gray-300">Interactive 3D Solar System with Three.js</p>
+        <h1 className="text-white text-3xl font-bold mb-2 drop-shadow-lg">Solar System Simulation</h1>
+        <p className="text-gray-300">Interactive 3D Solar System with Enhanced Visuals</p>
       </div>
     </div>
   );
