@@ -1,73 +1,130 @@
-# Welcome to your Lovable project
 
-## Project info
+# 3D Solar System Simulation
 
-**URL**: https://lovable.dev/projects/035e84f8-71ae-4b32-83c0-bd6512ad1f25
+An interactive 3D solar system simulation built with Three.js, featuring realistic planetary orbits, individual speed controls, and immersive space visuals.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **3D Solar System**: Complete solar system with the Sun and all 8 planets
+- **Realistic Orbits**: Planets orbit at different speeds based on real astronomical data
+- **Interactive Controls**: Individual speed sliders for each planet
+- **Real-time Animation**: Smooth animations with play/pause functionality
+- **Camera Controls**: Drag to rotate view, scroll to zoom
+- **Starfield Background**: Beautiful space environment with thousands of stars
+- **Responsive Design**: Works on all modern browsers and devices
 
-**Use Lovable**
+## Technologies Used
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/035e84f8-71ae-4b32-83c0-bd6512ad1f25) and start prompting.
+- **Three.js**: 3D graphics rendering
+- **React**: UI framework
+- **TypeScript**: Type safety
+- **Tailwind CSS**: Styling
+- **Vite**: Build tool
 
-Changes made via Lovable will be committed automatically to this repo.
+## Setup Instructions
 
-**Use your preferred IDE**
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd solar-system-simulation
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-Follow these steps:
+4. **Open your browser**
+   Navigate to `http://localhost:8080` to view the simulation
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## How to Use
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. **View the Solar System**: The simulation starts automatically with all planets orbiting the Sun
+2. **Control Animation**: Use the Play/Pause button to control the animation
+3. **Adjust Planet Speeds**: Use the individual sliders to change each planet's orbital speed in real-time
+4. **Navigate the View**: 
+   - Drag with mouse to rotate the camera around the solar system
+   - Scroll to zoom in/out
+5. **Reset**: Click the Reset button to return all planets to their starting positions
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Planet Information
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+The simulation includes all 8 planets with realistic relative sizes and orbital characteristics:
+
+- **Mercury**: Closest to the Sun, fastest orbit
+- **Venus**: Hottest planet, reverse rotation
+- **Earth**: Our home planet with blue coloring
+- **Mars**: The red planet
+- **Jupiter**: Largest planet in the solar system
+- **Saturn**: Known for its prominent ring system
+- **Uranus**: Ice giant with unique tilted rotation
+- **Neptune**: Furthest planet, deep blue color
+
+## Code Structure
+
+```
+src/
+├── components/
+│   └── SolarSystem.tsx     # Main solar system component
+├── pages/
+│   └── Index.tsx          # Main page
+├── lib/
+│   └── utils.ts           # Utility functions
+└── main.tsx               # Application entry point
 ```
 
-**Edit a file directly in GitHub**
+## Key Implementation Details
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- **Three.js Scene Setup**: Camera, renderer, and scene configuration
+- **Planetary Animation**: Using Three.js animation loop with delta time
+- **Interactive Controls**: Real-time speed adjustment using React state
+- **Responsive Design**: Automatic canvas resizing and mobile-friendly controls
+- **Performance Optimization**: Efficient rendering with proper disposal of resources
 
-**Use GitHub Codespaces**
+## Browser Compatibility
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- Chrome 60+
+- Firefox 55+
+- Safari 11+
+- Edge 79+
 
-## What technologies are used for this project?
+## Assignment Requirements Fulfilled
 
-This project is built with:
+✅ 3D solar system with Sun and 8 planets  
+✅ Realistic lighting and camera setup  
+✅ Smooth orbital animations using Three.js  
+✅ Individual speed controls for each planet  
+✅ Real-time speed adjustment  
+✅ Play/Pause functionality  
+✅ Background starfield  
+✅ Interactive camera controls  
+✅ Mobile-responsive design  
+✅ Clean code structure with comments  
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Demo
 
-## How can I deploy this project?
+The application demonstrates:
+1. Complete 3D solar system in motion
+2. Individual planet speed controls working in real-time
+3. Smooth animations and user interactions
+4. Professional UI with space theme
+5. Responsive design across devices
 
-Simply open [Lovable](https://lovable.dev/projects/035e84f8-71ae-4b32-83c0-bd6512ad1f25) and click on Share -> Publish.
+## Development Notes
 
-## Can I connect a custom domain to my Lovable project?
+- Used Three.js for all 3D rendering and animations
+- No CSS animations used - all motion handled by Three.js
+- Implemented proper cleanup to prevent memory leaks
+- Added comprehensive error handling and edge cases
+- Optimized for performance with efficient rendering loop
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+**Developer**: Frontend Assignment Submission  
+**Technology Stack**: React + TypeScript + Three.js + Tailwind CSS  
+**Build Time**: ~2-3 hours for full implementation
